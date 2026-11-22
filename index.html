@@ -125,7 +125,9 @@ button { font: inherit; color: inherit; }
 /* appraise */
 .appraise { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: clamp(24px, 4vw, 48px); align-items: start; padding-block: 20px 40px; }
 .wallcol { display: flex; flex-direction: column; align-items: center; gap: 18px; }
-.hung { display: flex; flex-direction: column; align-items: center; width: min(100%, calc(56vh * var(--ar, 1) + 44px)); }
+.hung { display: flex; flex-direction: column; align-items: center; width: 100%; }
+.hung .frame { max-width: 100%; }
+.hung .frame img { width: auto; max-width: 100%; max-height: min(58vh, 620px); }
 .wire { display: block; width: 46%; max-width: 220px; height: auto; margin-bottom: -3px; }
 .price-tag {
   position: relative;
@@ -265,7 +267,7 @@ button { font: inherit; color: inherit; }
   .poster-v { height: 430px; }
   .poster-v h1 { font-size: 70px; }
   .appraise { grid-template-columns: minmax(0, 1fr); }
-  .hung { width: min(100%, calc(42vh * var(--ar, 1) + 36px)); }
+  .hung .frame img { max-height: 44vh; }
   .cert-grid { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 520px) {
@@ -297,32 +299,28 @@ button { font: inherit; color: inherit; }
 <main id="app"></main>
 
 <footer class="credit wrap" id="credit">
-  10点のうち8点は、このゲームのために描いた架空の作品と価格の例です。実在するのは『サルバトール・ムンディ』と夕焼けの写真です。<a href="https://github.com/bookworm1000-cyber/meiga-garakuta#出典">出典</a>
+  すべて実在する絵です。価格は実際の落札額を、1ドル=150円・1ユーロ=160円・1クローネ=21.5円で換算しています。<a href="https://github.com/bookworm1000-cyber/meiga-garakuta#価格の出典">出典</a>
 </footer>
 
 <script>
 (() => {
   const LOTS = [
-    { img: 'images/kid-crayon.jpg', ar: 900 / 640, title: 'おうちとかぞく', artist: '近所の小学2年生', year: '2025年', medium: 'クレヨン、画用紙', kind: '子どもの絵',
-      value: 0, sold: '値はつかない', prov: '冷蔵庫に貼ってあった', note: '家族には宝物、市場では0円。' },
-    { img: 'images/harbor-oil.jpg', ar: 900 / 692, title: '港の朝靄', artist: '地方で活動する画家', year: '1998年', medium: '油彩、カンヴァス', kind: '地方の画家',
-      value: 180000, sold: '駅前の画廊での販売価格', prov: '駅前の小さな画廊', note: '地元では人気の画家。' },
-    { img: 'images/shop-flowers.jpg', ar: 640 / 860, title: 'Bloom', artist: '不明(大量印刷)', year: '2024年', medium: '印刷、紙', kind: '量産品',
-      value: 110, sold: '100円ショップの店頭価格', prov: '雑貨売り場の棚', note: '額のほうが高そうに見える。' },
-    { img: 'images/ink-line.jpg', ar: 900 / 643, title: '線 #44', artist: 'ハンス・オルベック', year: '1968年', medium: '墨、和紙', kind: '前衛書',
-      value: 1150000000, sold: '美術館の購入額', prov: '作家の遺族から美術館へ', note: '線一本で11億円。' },
-    { img: 'images/sunset-oslo.jpg', ar: 2584 / 1936, title: 'Oslo sunset', artist: 'Kristofer Selbekk(Unsplash)', year: '不明', medium: 'デジタル写真', kind: '無料写真',
-      value: 0, sold: '誰でも無料で使える(CC0)', prov: '写真共有サイトで無料公開', note: '額に入れても0円。', real: true },
-    { img: 'images/red-field.jpg', ar: 810 / 900, title: '無題(赤の沈黙)', artist: '美大出身の若手作家', year: '2021年', medium: 'アクリル、綿布', kind: '若手作家',
-      value: 600000, sold: '初個展での販売価格', prov: '初めての個展', note: 'これから上がるかもしれない。' },
-    { img: 'images/flea-lake.jpg', ar: 900 / 660, title: '湖と山', artist: '趣味で描く会社員', year: '2019年', medium: '油彩、板', kind: 'フリマ品',
-      value: 500, sold: 'フリーマーケットでの売値', prov: '日曜のフリーマーケット', note: '額込みで500円。' },
-    { img: 'images/pond-oil.jpg', ar: 900 / 691, title: '午後の睡蓮池', artist: 'エミール・ヴァランタン', year: '1897年', medium: '油彩、カンヴァス', kind: '名画',
-      value: 4200000000, sold: 'ロンドンの競売での落札額', prov: 'スイスの個人蔵から競売へ', note: '晩年の荒い筆致がかえって評価された。' },
-    { img: 'images/interior-gold.jpg', ar: 700 / 900, title: 'ゴールドの波', artist: '不明(工場で量産)', year: '2023年', medium: 'アクリル、キャンバス', kind: '量産品',
-      value: 3980, sold: '家具店での価格', prov: '家具店のレジ横', note: '同じ絵が倉庫に何百枚もある。' },
-    { img: 'images/salvator-mundi.jpg', ar: 611 / 900, title: 'サルバトール・ムンディ', artist: 'レオナルド・ダ・ヴィンチ(とされる)', year: '1500年ごろ', medium: '油彩、クルミ材の板', kind: '名画',
-      value: 67500000000, approx: true, sold: '2017年 クリスティーズ・ニューヨーク、4億5,030万ドル', prov: '落札前の予想は約1億ドル', note: '美術品として史上最高の落札額。', real: true }
+    { img: 'images/raadsig-fishermen.jpg', title: '浜で網を繕う漁師一家', artist: 'ペーター・ラードシ(デンマーク)', year: '1872年', medium: '油彩、カンヴァス', kind: 'デンマーク絵画',
+      value: 172000, sold: 'ブルーン・ラスムッセン、8,000クローネ', prov: '落札前の予想は2,000〜3,000クローネ', note: '予想の約3倍で落札。' },
+    { img: 'images/monet-meules.jpg', title: '積みわら', artist: 'クロード・モネ', year: '1890年', medium: '油彩、カンヴァス', kind: '印象派',
+      value: 16600000000, sold: '2019年 サザビーズ・ニューヨーク、1億1,070万ドル', prov: '1986年の落札額は約250万ドル', note: '印象派で初めて1億ドルを超えた落札。' },
+    { img: 'images/malevich-suprematist.jpg', title: 'シュプレマティスム・コンポジション', artist: 'カジミール・マレーヴィチ', year: '1916年', medium: '油彩、カンヴァス', kind: '前衛',
+      value: 12900000000, sold: '2018年 クリスティーズ・ニューヨーク、8,581万ドル', prov: '2008年にも6,000万ドルで落札', note: 'ロシア美術の落札最高額(当時)。' },
+    { img: 'images/marstrand-daughters.jpg', title: 'オットー・マーストランの二人の娘と乳母', artist: 'ヴィルヘルム・マーストラン(デンマーク)', year: '1857年', medium: '油彩、カンヴァス', kind: 'デンマーク絵画',
+      value: 19400000, sold: 'ブルーン・ラスムッセン、90万クローネ', prov: '落札前の予想は60万〜80万クローネ', note: '画家の弟の娘たちを描いた一枚。' },
+    { img: 'images/ring-rye-field.jpg', title: 'ライ麦畑に沿って', artist: 'L・A・リング(デンマーク)', year: '1887年', medium: '油彩、カンヴァス', kind: 'デンマーク絵画',
+      value: 4730000, sold: '2017年 ブルーン・ラスムッセン、22万クローネ', prov: '落札前の予想は8万〜10万クローネ', note: '地方の美術館が競り落とした。' },
+    { img: 'images/salvator-mundi.jpg', title: 'サルバトール・ムンディ', artist: 'レオナルド・ダ・ヴィンチ(とされる)', year: '1500年ごろ', medium: '油彩、クルミ材の板', kind: '名画',
+      value: 67500000000, sold: '2017年 クリスティーズ・ニューヨーク、4億5,030万ドル', prov: '落札前の予想は約1億ドル', note: '美術品として史上最高の落札額。' },
+    { img: 'images/eckersberg-door.jpg', title: '扉越しに走る人々', artist: 'C・W・エッカースベア(デンマーク)', year: '1845年', medium: '油彩、カンヴァス', kind: 'デンマーク絵画',
+      value: 45200000, sold: '2017年 ブルーン・ラスムッセン、210万クローネ', prov: '落札前の予想は200万〜300万クローネ', note: 'デンマーク国立美術館が購入。31×27cmの小品。' },
+    { img: 'images/mondrian-1922.jpg', title: '大きな赤い面のコンポジション', artist: 'ピエト・モンドリアン', year: '1922年', medium: '油彩、カンヴァス', kind: '前衛',
+      value: 7130000000, sold: '2025年 クリスティーズ・ニューヨーク、4,756万ドル', prov: 'リッジオ夫妻のコレクション', note: '予想の5,000万ドル超には届かず。' }
   ];
 
   const KANJI = ['', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
@@ -391,9 +389,9 @@ button { font: inherit; color: inherit; }
           <button class="start" type="button" id="start">鑑定を始める</button>
         </div>
         <div class="salon" aria-label="展示中の作品">
-          <div class="hang big"><div class="frame"><div class="slip"><img src="images/pond-oil.jpg" alt=""></div></div><span class="tag">いくら?</span></div>
-          <div class="hang"><div class="frame sm"><div class="slip"><img src="images/shop-flowers.jpg" alt=""></div></div><span class="tag">いくら?</span></div>
-          <div class="hang"><div class="frame sm"><div class="slip"><img src="images/ink-line.jpg" alt=""></div></div><span class="tag">いくら?</span></div>
+          <div class="hang big"><div class="frame"><div class="slip"><img src="images/monet-meules.jpg" alt=""></div></div><span class="tag">いくら?</span></div>
+          <div class="hang"><div class="frame sm"><div class="slip"><img src="images/raadsig-fishermen.jpg" alt=""></div></div><span class="tag">いくら?</span></div>
+          <div class="hang"><div class="frame sm"><div class="slip"><img src="images/mondrian-1922.jpg" alt=""></div></div><span class="tag">いくら?</span></div>
         </div>
       </section>`;
     $('#start').onclick = () => { state.i = 0; state.results = []; showAppraise(); };
@@ -424,9 +422,9 @@ button { font: inherit; color: inherit; }
     app.innerHTML = `
       <section class="wrap appraise">
         <div class="wallcol">
-          <div class="hung" style="--ar:${lot.ar.toFixed(3)}">
+          <div class="hung">
             <svg class="wire" viewBox="0 0 200 40" aria-hidden="true"><path d="M10 40 L100 5 L190 40" fill="none" stroke="#8f8a78" stroke-width="1.3"/><circle cx="100" cy="5" r="4" fill="#c8a35a"/></svg>
-            <div class="frame" style="width:100%"><div class="slip"><img src="${lot.img}" alt="鑑定する作品"></div></div>
+            <div class="frame"><div class="slip"><img src="${lot.img}" alt="鑑定する作品"></div></div>
             <div class="string" aria-hidden="true"></div>
             <div class="price-tag" id="tag" aria-live="polite">0円</div>
           </div>
@@ -519,7 +517,7 @@ button { font: inherit; color: inherit; }
             <div style="display:flex;flex-direction:column;gap:12px">
               <div class="amounts">
                 <div><p class="lbl">あなたの鑑定</p><p class="amt">${yen(r.guess)}</p></div>
-                <div class="act"><p class="lbl">実際の値打ち</p><p class="amt">${lot.approx ? '約' : ''}${yen(lot.value)}</p><p class="sub">${esc(lot.sold)}${lot.real ? '' : '(架空の例)'}</p></div>
+                <div class="act"><p class="lbl">実際の値打ち</p><p class="amt">約${yen(lot.value)}</p><p class="sub">${esc(lot.sold)}</p></div>
               </div>
               <div class="scale" aria-hidden="true">
                 <div class="axis"></div>
