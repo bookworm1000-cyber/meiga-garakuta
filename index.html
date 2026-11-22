@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>名画かガラクタか</title>
+<meta name="description" content="絵を見て値段をつける鑑定ゲーム。数百億円の名画と、0円の無料写真が混ざっています。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&family=Shippori+Mincho+B1:wght@500;700;800&family=Yuji+Syuku&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+:root {
+  color-scheme: dark;
+  --wall: #1a2f2a;
+  --wall-deep: #0f1d1a;
+  --line: #2c4a42;
+  --on-wall: #e7e9e2;
+  --muted: #9db0a8;
+  --paper: #ecebe3;
+  --paper-2: #e1dfd5;
+  --edge: #cdcabd;
+  --ink: #1b1f1d;
+  --ink-muted: #5c625d;
+  --gold: #c8a35a;
+  --gold-hi: #efd793;
+  --gold-lo: #76592a;
+  --lip: #2a2317;
+  --wire: #8f8a78;
+  --shu: #c23b22;
+  --washi: #f2ecdd;
+  --f-brush: "Yuji Syuku", "Shippori Mincho B1", "Yu Mincho", serif;
+  --f-mincho: "Shippori Mincho B1", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  --f-hand: "Klee One", "Hiragino Maru Gothic ProN", cursive;
+  --f-gothic: "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; }
+html { background: var(--wall-deep); }
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(60% 50% at 40% 0%, rgba(255, 232, 186, .13), transparent 70%),
+    linear-gradient(180deg, var(--wall) 0%, var(--wall) 70%, var(--wall-deep) 100%);
+  background-attachment: fixed;
+  color: var(--on-wall);
+  font-family: var(--f-mincho);
+  font-size: 15px;
+  line-height: 1.7;
+}
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--gold-hi); outline-offset: 3px; }
+.paper :focus-visible { outline-color: var(--ink); }
+.wrap {
+  max-width: 1180px;
+  margin-inline: auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+/* header */
+.hud { border-bottom: 1px solid var(--line); }
+.hud .wrap { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-block: 12px 10px; }
+.brand { font-family: var(--f-brush); font-size: 22px; color: var(--on-wall); text-decoration: none; background: none; border: 0; padding: 0; cursor: pointer; }
+.hud-stats { font-family: var(--f-gothic); font-size: 14px; display: flex; gap: 20px; }
+.hud-stats b { font-size: 20px; }
+.hud-stats span span { color: var(--muted); }
+
+/* frames */
+.frame {
+  padding: clamp(10px, 1.6vw, 18px);
+  background: linear-gradient(135deg, var(--gold-lo) 0%, var(--gold-hi) 16%, var(--gold) 34%, var(--gold-lo) 50%, var(--gold) 66%, var(--gold-hi) 84%, var(--gold-lo) 100%);
+  border: 2px solid;
+  border-color: var(--gold-hi) var(--gold-lo) var(--gold-lo) var(--gold-hi);
+  box-shadow: 0 26px 48px -14px rgba(0, 0, 0, .75), 0 6px 14px rgba(0, 0, 0, .5);
+}
+.frame .slip { padding: 4px; background: var(--lip); box-shadow: inset 0 0 0 1px var(--gold-lo); }
+.frame img { display: block; width: 100%; height: auto; }
+.frame.sm { padding: 9px; }
+
+/* title */
+.title-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: clamp(32px, 6vw, 72px);
+  align-items: center;
+  min-height: 100vh;
+  padding-block: 40px;
+}
+.poster { display: flex; flex-direction: column; gap: 30px; }
+.poster-v { align-self: flex-start; display: flex; flex-direction: column; gap: 18px; height: 500px; writing-mode: vertical-rl; }
+.poster-v .kicker { font-size: 18px; font-weight: 700; letter-spacing: .3em; color: var(--gold); }
+.poster-v h1 { margin: 0; display: flex; flex-direction: column; gap: 6px; font-family: var(--f-brush); font-weight: 400; font-size: 84px; line-height: 1.05; }
+.poster-v h1 span + span { padding-top: 52px; }
+.poster-v .facts { display: flex; flex-direction: column; gap: 6px; margin-right: 22px; padding-right: 22px; border-right: 1px solid var(--line); font-size: 15px; color: #c9d3ce; }
+.start {
+  align-self: flex-start;
+  padding: 0 0 2px;
+  border: 0;
+  border-bottom: 2px solid var(--shu);
+  background: none;
+  color: #f3f1ea;
+  font-weight: 700;
+  font-size: 22px;
+  cursor: pointer;
+}
+.salon { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 36px 28px; align-items: center; }
+.salon .big { grid-row: span 2; }
+.hang { position: relative; }
+.tag {
+  position: absolute;
+  right: 14px;
+  bottom: -26px;
+  padding: 12px 12px 3px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--f-hand);
+  font-weight: 600;
+  font-size: 15px;
+  clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%, 0 8px);
+  box-shadow: 0 8px 14px -6px rgba(0, 0, 0, .6);
+}
+.tag::before { content: ""; position: absolute; top: 3px; left: 50%; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: var(--wall); }
+
+/* appraise */
+.appraise { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: clamp(24px, 4vw, 48px); align-items: start; padding-block: 20px 40px; }
+.wallcol { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.hung { display: flex; flex-direction: column; align-items: center; width: min(100%, calc(56vh * var(--ar, 1) + 44px)); }
+.wire { display: block; width: 46%; max-width: 220px; height: auto; margin-bottom: -3px; }
+.price-tag {
+  position: relative;
+  margin-top: 0;
+  min-width: 140px;
+  padding: 18px 20px 8px;
+  background: var(--paper);
+  color: var(--ink);
+  text-align: center;
+  font-family: var(--f-hand);
+  font-weight: 600;
+  font-size: 28px;
+  line-height: 1.2;
+  white-space: nowrap;
+  transform: rotate(-4deg);
+  transform-origin: top center;
+  clip-path: polygon(12px 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%, 0 12px);
+  box-shadow: 0 10px 18px -8px rgba(0, 0, 0, .75);
+}
+.price-tag::before { content: ""; position: absolute; top: 5px; left: 50%; width: 7px; height: 7px; margin-left: -3.5px; border-radius: 50%; background: var(--wall); }
+.string { width: 1px; height: 22px; background: var(--wire); }
+.plaque { width: min(100%, 300px); padding: 10px 16px 12px; background: var(--paper); color: var(--ink); font-size: 13px; line-height: 1.65; box-shadow: 0 8px 18px -6px rgba(0, 0, 0, .5); }
+.plaque b { font-size: 15px; font-weight: 800; }
+.plaque .hid { color: var(--ink-muted); }
+
+.ticket { display: flex; flex-direction: column; gap: 14px; padding: 16px 22px 20px; background: var(--paper); color: var(--ink); box-shadow: 0 22px 44px -16px rgba(0, 0, 0, .75); }
+.ticket-head { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 8px; border-bottom: 2px dashed var(--edge); }
+.ticket-head h2 { margin: 0; font-family: var(--f-brush); font-weight: 400; font-size: 26px; }
+.formal { padding-bottom: 2px; border-bottom: 1px solid var(--ink); font-family: var(--f-brush); font-size: 24px; line-height: 1.4; min-height: 1.4em; }
+.zero { color: var(--shu); }
+
+.calc { padding: 10px 12px 12px; border-radius: 14px; background: linear-gradient(180deg, #45484a, #2f3133); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 10px 18px -10px rgba(0, 0, 0, .6); }
+.solar { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+.solar span { width: 70px; height: 15px; border-radius: 2px; background: repeating-linear-gradient(90deg, #3a2a1e 0 16px, #22180f 16px 17px); box-shadow: inset 0 0 0 1px #1c1a18; }
+.lcd { padding: 4px 8px 8px; border-radius: 4px; background: linear-gradient(180deg, #c6cfae, #b7c19c); box-shadow: inset 0 2px 4px rgba(0, 0, 0, .35); }
+.lcd-row { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 2px; }
+.lcd-cell { display: flex; flex-direction: column; align-items: center; }
+.lcd-cell i { height: 12px; font-style: normal; font-family: var(--f-gothic); font-size: 9px; line-height: 12px; color: #33402a; }
+.lcd-cell svg { display: block; width: 100%; max-width: 20px; height: auto; }
+.keys { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+.key { height: 44px; border: 0; border-radius: 6px; background: #e8e6df; color: #1d1f1e; font-family: var(--f-gothic); font-weight: 700; font-size: 18px; box-shadow: 0 2px 0 #9c9a93; cursor: pointer; touch-action: manipulation; }
+.key:active { transform: translateY(1px); box-shadow: 0 1px 0 #9c9a93; }
+.key.fn { background: #6a6e70; color: #fff; box-shadow: 0 2px 0 #3d4042; }
+.key.clear { background: var(--shu); color: #fff; box-shadow: 0 2px 0 #7a2414; }
+
+.hints { display: flex; gap: 8px; padding-top: 12px; border-top: 1px solid var(--edge); }
+.hint { flex: 1; padding: 8px 10px; border: 1px solid var(--edge); border-radius: 2px; background: var(--paper-2); color: var(--ink); font-family: var(--f-gothic); font-size: 13px; text-align: left; cursor: pointer; }
+.hint:disabled { cursor: default; background: transparent; border-style: dashed; color: var(--ink-muted); }
+.go { display: block; width: 100%; padding: 13px; border: 0; background: var(--ink); color: var(--paper); font-weight: 700; font-size: 17px; letter-spacing: .12em; cursor: pointer; }
+.go.red { background: var(--shu); color: #fbf3ee; }
+
+/* result */
+.result { display: flex; flex-direction: column; align-items: center; gap: 18px; padding-block: 24px 40px; }
+.cert { position: relative; width: 100%; max-width: 1000px; padding: clamp(22px, 4vw, 36px) clamp(18px, 4vw, 44px); background: var(--paper); color: var(--ink); box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .75); }
+.cert::before { content: ""; position: absolute; inset: 10px; border: 1px solid var(--ink-muted); pointer-events: none; }
+.cert::after { content: ""; position: absolute; inset: 14px; border: 1px solid var(--edge); pointer-events: none; }
+.cert-head { display: flex; justify-content: center; align-items: baseline; gap: 18px; }
+.cert-head h2 { margin: 0; font-family: var(--f-brush); font-weight: 400; font-size: 36px; }
+.cert-head span { font-size: 13px; color: var(--ink-muted); }
+.cert-grid { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: clamp(20px, 4vw, 40px); margin-top: 14px; align-items: start; }
+.cert-left { display: flex; flex-direction: column; gap: 12px; }
+.cert-left .frame { align-self: center; width: min(100%, 240px); }
+.meta { margin: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 14px; font-size: 14px; }
+.meta dt { color: var(--ink-muted); }
+.meta dd { margin: 0; }
+.amounts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.amounts > div { padding-bottom: 4px; border-bottom: 1px solid var(--ink); }
+.amounts > div.act { border-color: var(--shu); }
+.amounts p { margin: 0; }
+.amounts .lbl { font-size: 13px; color: var(--ink-muted); }
+.amounts .amt { font-family: var(--f-hand); font-weight: 600; font-size: clamp(26px, 3.4vw, 36px); line-height: 1.25; }
+.amounts .act .amt { color: var(--shu); }
+.amounts .sub { font-family: var(--f-gothic); font-size: 12px; color: var(--ink-muted); }
+.scale { position: relative; height: 80px; margin: 6px 14px 0; }
+.scale .axis { position: absolute; left: 0; right: 0; top: 38px; height: 2px; background: var(--ink); }
+.scale .span { position: absolute; top: 34px; height: 10px; background: rgba(194, 59, 34, .18); }
+.scale .tick { position: absolute; top: 34px; width: 1px; height: 10px; background: var(--ink-muted); }
+.scale .tick span { position: absolute; top: 13px; left: 0; transform: translateX(-50%); font-size: 11px; color: var(--ink-muted); white-space: nowrap; }
+.scale .mk { position: absolute; top: 0; bottom: 0; width: 0; }
+.scale .mk b { position: absolute; top: 4px; transform: translateX(-50%); font-family: var(--f-hand); font-size: 13px; white-space: nowrap; }
+.scale .mk.act b { top: auto; bottom: 0; color: var(--shu); }
+.scale .mk::after { content: ""; position: absolute; top: 32px; left: -7px; width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--paper); background: var(--ink); }
+.scale .mk.act::after { background: var(--shu); }
+.verdict { margin: 0; font-size: 19px; font-weight: 700; }
+.note { margin: 0; font-size: 14px; }
+.cert-foot { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-top: 6px; padding-top: 12px; border-top: 1px solid var(--ink); }
+.cert-foot .pts { margin: 0; font-weight: 800; font-size: 52px; line-height: 1.05; }
+.cert-foot .pts small { margin-left: 6px; font-weight: 500; font-size: 17px; color: var(--ink-muted); }
+.stamp {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 100px;
+  height: 100px;
+  border: 5px solid var(--shu);
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 3px var(--paper), inset 0 0 0 5.5px var(--shu);
+  color: var(--shu);
+  font-family: var(--f-brush);
+  font-size: 38px;
+  line-height: 1;
+  writing-mode: vertical-rl;
+  transform: rotate(-8deg);
+  filter: url(#rough);
+  mix-blend-mode: multiply;
+  opacity: .92;
+}
+.stamp.land { animation: stamp .45s cubic-bezier(.3, 1.5, .5, 1) .25s both; }
+@keyframes stamp { from { transform: rotate(-8deg) scale(2.2); opacity: 0; } to { transform: rotate(-8deg) scale(1); opacity: .92; } }
+
+/* final */
+.final { display: flex; flex-direction: column; align-items: center; gap: 20px; padding-block: 28px 40px; }
+.washi-scroll { width: 100%; overflow-x: auto; display: flex; justify-content: center; padding: 6px 0 24px; }
+.washi-wrap { flex: none; filter: drop-shadow(0 22px 26px rgba(0, 0, 0, .55)); }
+.washi { position: relative; height: 640px; padding: 52px 60px; background: var(--washi); color: #22201b; }
+.washi svg.tex { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.washi-v { position: relative; display: flex; flex-direction: column; gap: 26px; height: 100%; writing-mode: vertical-rl; }
+.washi-v h2 { margin: 0; font-family: var(--f-brush); font-weight: 400; font-size: 44px; line-height: 1.3; letter-spacing: .12em; }
+.washi-v .body { margin: 0; padding-top: 2.5em; font-size: 19px; line-height: 1.9; }
+.washi-v .rank { margin: 0; padding-top: 2.5em; font-family: var(--f-brush); font-size: 60px; line-height: 1.15; }
+.washi-v .tail { margin: 0; padding-top: 10em; font-size: 19px; }
+.washi-v .items { display: flex; flex-direction: column; gap: 8px; font-size: 15px; line-height: 2; }
+.washi-v .items p { margin: 0; }
+.washi-v .item { display: flex; justify-content: space-between; align-items: center; height: 100%; }
+.washi-v .mini { display: inline-grid; place-items: center; width: 30px; height: 30px; border: 1.5px solid var(--shu); border-radius: 4px; color: var(--shu); font-weight: 800; font-size: 11px; line-height: 1; mix-blend-mode: multiply; }
+.washi-v .date { margin: 0; padding-top: 8em; font-size: 16px; }
+.washi-v .issuer { display: flex; align-items: center; gap: 10px; padding-top: 5em; font-family: var(--f-brush); font-size: 22px; }
+.seal { display: grid; place-items: center; width: 72px; height: 72px; border: 4px solid var(--shu); border-radius: 6px; color: var(--shu); font-family: var(--f-brush); font-size: 25px; line-height: 1.05; transform: rotate(3deg); filter: url(#rough); mix-blend-mode: multiply; opacity: .9; }
+.actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.btn-line { padding: 12px 26px; border: 1px solid var(--muted); background: transparent; color: var(--on-wall); font-weight: 700; font-size: 16px; letter-spacing: .1em; cursor: pointer; }
+
+.credit { padding-block: 0 28px; font-family: var(--f-gothic); font-size: 11.5px; color: var(--muted); }
+.credit a { color: var(--muted); }
+
+@media (max-width: 900px) {
+  .title-grid { grid-template-columns: minmax(0, 1fr); min-height: 0; }
+  .poster-v { height: 430px; }
+  .poster-v h1 { font-size: 70px; }
+  .appraise { grid-template-columns: minmax(0, 1fr); }
+  .hung { width: min(100%, calc(42vh * var(--ar, 1) + 36px)); }
+  .cert-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 520px) {
+  .amounts { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .cert-foot .pts { font-size: 42px; }
+  .stamp { width: 84px; height: 84px; font-size: 32px; }
+}
+@media (prefers-reduced-motion: reduce) { .stamp.land { animation: none; } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="rough" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="2" seed="7" result="noise"></feTurbulence>
+    <feDisplacementMap in="SourceGraphic" in2="noise" scale="2.5" xChannelSelector="R" yChannelSelector="G" result="d"></feDisplacementMap>
+    <feTurbulence type="fractalNoise" baseFrequency="1.6" numOctaves="1" seed="2" result="grain"></feTurbulence>
+    <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -3 2.1" result="mask"></feColorMatrix>
+    <feComposite in="d" in2="mask" operator="in"></feComposite>
+  </filter>
+</svg>
+
+<header class="hud" id="hud" hidden>
+  <div class="wrap">
+    <button class="brand" type="button" id="home">名画かガラクタか</button>
+    <div class="hud-stats"><span><b id="hud-n">1</b> <span>/ <span id="hud-total">6</span></span></span><span><b id="hud-score">0</b> <span>点</span></span></div>
+  </div>
+</header>
+
+<main id="app"></main>
+
+<footer class="credit wrap" id="credit">
+  10点のうち8点は、このゲームのために描いた架空の作品と価格の例です。実在するのは『サルバトール・ムンディ』と夕焼けの写真です。<a href="https://github.com/bookworm1000-cyber/meiga-garakuta#出典">出典</a>
+</footer>
+
+<script>
+(() => {
+  const LOTS = [
+    { img: 'images/kid-crayon.jpg', ar: 900 / 640, title: 'おうちとかぞく', artist: '近所の小学2年生', year: '2025年', medium: 'クレヨン、画用紙', kind: '子どもの絵',
+      value: 0, sold: '値はつかない', prov: '冷蔵庫に貼ってあった', note: '家族には宝物、市場では0円。' },
+    { img: 'images/harbor-oil.jpg', ar: 900 / 692, title: '港の朝靄', artist: '地方で活動する画家', year: '1998年', medium: '油彩、カンヴァス', kind: '地方の画家',
+      value: 180000, sold: '駅前の画廊での販売価格', prov: '駅前の小さな画廊', note: '地元では人気の画家。' },
+    { img: 'images/shop-flowers.jpg', ar: 640 / 860, title: 'Bloom', artist: '不明(大量印刷)', year: '2024年', medium: '印刷、紙', kind: '量産品',
+      value: 110, sold: '100円ショップの店頭価格', prov: '雑貨売り場の棚', note: '額のほうが高そうに見える。' },
+    { img: 'images/ink-line.jpg', ar: 900 / 643, title: '線 #44', artist: 'ハンス・オルベック', year: '1968年', medium: '墨、和紙', kind: '前衛書',
+      value: 1150000000, sold: '美術館の購入額', prov: '作家の遺族から美術館へ', note: '線一本で11億円。' },
+    { img: 'images/sunset-oslo.jpg', ar: 2584 / 1936, title: 'Oslo sunset', artist: 'Kristofer Selbekk(Unsplash)', year: '不明', medium: 'デジタル写真', kind: '無料写真',
+      value: 0, sold: '誰でも無料で使える(CC0)', prov: '写真共有サイトで無料公開', note: '額に入れても0円。', real: true },
+    { img: 'images/red-field.jpg', ar: 810 / 900, title: '無題(赤の沈黙)', artist: '美大出身の若手作家', year: '2021年', medium: 'アクリル、綿布', kind: '若手作家',
+      value: 600000, sold: '初個展での販売価格', prov: '初めての個展', note: 'これから上がるかもしれない。' },
+    { img: 'images/flea-lake.jpg', ar: 900 / 660, title: '湖と山', artist: '趣味で描く会社員', year: '2019年', medium: '油彩、板', kind: 'フリマ品',
+      value: 500, sold: 'フリーマーケットでの売値', prov: '日曜のフリーマーケット', note: '額込みで500円。' },
+    { img: 'images/pond-oil.jpg', ar: 900 / 691, title: '午後の睡蓮池', artist: 'エミール・ヴァランタン', year: '1897年', medium: '油彩、カンヴァス', kind: '名画',
+      value: 4200000000, sold: 'ロンドンの競売での落札額', prov: 'スイスの個人蔵から競売へ', note: '晩年の荒い筆致がかえって評価された。' },
+    { img: 'images/interior-gold.jpg', ar: 700 / 900, title: 'ゴールドの波', artist: '不明(工場で量産)', year: '2023年', medium: 'アクリル、キャンバス', kind: '量産品',
+      value: 3980, sold: '家具店での価格', prov: '家具店のレジ横', note: '同じ絵が倉庫に何百枚もある。' },
+    { img: 'images/salvator-mundi.jpg', ar: 611 / 900, title: 'サルバトール・ムンディ', artist: 'レオナルド・ダ・ヴィンチ(とされる)', year: '1500年ごろ', medium: '油彩、クルミ材の板', kind: '名画',
+      value: 67500000000, approx: true, sold: '2017年 クリスティーズ・ニューヨーク、4億5,030万ドル', prov: '落札前の予想は約1億ドル', note: '美術品として史上最高の落札額。', real: true }
+  ];
+
+  const KANJI = ['', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
+  const DAIJI = ['', '壱', '弐', '参', '四', '五', '六', '七', '八', '九'];
+  const $ = s => document.querySelector(s);
+  const app = $('#app');
+  const state = { i: 0, results: [], calc: '', hints: [] };
+
+  const fmt = n => n.toLocaleString('ja-JP');
+  function yen(n) {
+    if (n <= 0) return '0円';
+    const oku = Math.floor(n / 1e8), man = Math.floor((n % 1e8) / 1e4), rest = n % 1e4;
+    return (oku ? fmt(oku) + '億' : '') + (man ? fmt(man) + '万' : '') + (rest ? fmt(rest) : '') + '円';
+  }
+  function four(x, D, ten) {
+    const th = Math.floor(x / 1000), h = Math.floor((x % 1000) / 100), t = Math.floor((x % 100) / 10), o = x % 10;
+    const one = d => (D === KANJI && d === 1 ? '' : D[d]);
+    return (th ? one(th) + '千' : '') + (h ? one(h) + '百' : '') + (t ? one(t) + ten : '') + (o ? D[o] : '');
+  }
+  function daiji(n) {
+    if (n <= 0) return '値打ちなし';
+    const oku = Math.floor(n / 1e8), man = Math.floor((n % 1e8) / 1e4), rest = n % 1e4;
+    return '金' + (oku ? four(oku, DAIJI, '拾') + '億' : '') + (man ? four(man, DAIJI, '拾') + '萬' : '') + (rest ? four(rest, DAIJI, '拾') : '') + '圓也';
+  }
+  function kanjiNum(n) {
+    if (n === 0) return '零';
+    const oku = Math.floor(n / 1e8), man = Math.floor((n % 1e8) / 1e4), rest = n % 1e4;
+    return (oku ? four(oku, KANJI, '十') + '億' : '') + (man ? four(man, KANJI, '十') + '万' : '') + (rest ? four(rest, KANJI, '十') : '');
+  }
+  function score(guess, value, hints) {
+    const d = Math.abs(Math.log10(Math.max(guess, 100) / Math.max(value, 100)));
+    const pts = Math.round(Math.max(0, 1 - d / 2.5) * 1000 * (1 - 0.15 * hints));
+    const grade = d < 0.1 ? '神眼' : d < 0.3 ? '慧眼' : d < 0.7 ? '凡眼' : d < 1.5 ? '節穴' : '論外';
+    return { d, pts, grade };
+  }
+  function verdict(guess, value) {
+    if (value === 0) return guess === 0 ? '値打ちなしと見抜いた。' : '0円の作品に' + yen(guess) + '。';
+    if (guess === 0) return yen(value) + 'を0円と鑑定。';
+    const r = guess / value;
+    if (Math.abs(Math.log10(r)) < 0.02) return 'ほぼぴったり。';
+    const x = r > 1 ? r : 1 / r;
+    const s = x < 10 ? x.toFixed(1) : fmt(Math.round(x));
+    return r > 1 ? '実際の' + s + '倍。高すぎ。' : '実際の' + s + '分の1。安すぎ。';
+  }
+  const total = () => state.results.reduce((s, r) => s + r.pts, 0);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  function hud(show) {
+    $('#hud').hidden = !show;
+    $('#hud-n').textContent = Math.min(state.i + 1, LOTS.length);
+    $('#hud-total').textContent = LOTS.length;
+    $('#hud-score').textContent = fmt(total());
+  }
+
+  /* title */
+  function showTitle() {
+    hud(false);
+    app.innerHTML = `
+      <section class="wrap title-grid">
+        <div class="poster">
+          <div class="poster-v">
+            <span class="kicker">特別展</span>
+            <h1><span>名画か</span><span>ガラクタか</span></h1>
+            <div class="facts"><span>会期　本日かぎり</span><span>出品　${kanjiNum(LOTS.length)}点</span></div>
+          </div>
+          <button class="start" type="button" id="start">鑑定を始める</button>
+        </div>
+        <div class="salon" aria-label="展示中の作品">
+          <div class="hang big"><div class="frame"><div class="slip"><img src="images/pond-oil.jpg" alt=""></div></div><span class="tag">いくら?</span></div>
+          <div class="hang"><div class="frame sm"><div class="slip"><img src="images/shop-flowers.jpg" alt=""></div></div><span class="tag">いくら?</span></div>
+          <div class="hang"><div class="frame sm"><div class="slip"><img src="images/ink-line.jpg" alt=""></div></div><span class="tag">いくら?</span></div>
+        </div>
+      </section>`;
+    $('#start').onclick = () => { state.i = 0; state.results = []; showAppraise(); };
+  }
+
+  /* appraise */
+  const SEG = { a: [4, 1, 10, 2.4], b: [14.4, 3.5, 2.4, 10], c: [14.4, 16.5, 2.4, 10], d: [4, 26.6, 10, 2.4], e: [1.2, 16.5, 2.4, 10], f: [1.2, 3.5, 2.4, 10], g: [4, 13.8, 10, 2.4] };
+  const MAP = ['abcdef', 'bc', 'abdeg', 'abcdg', 'bcfg', 'acdfg', 'acdefg', 'abc', 'abcdefg', 'abcdfg'];
+  function lcdHTML(v) {
+    let s = String(v);
+    while (s.length < 12) s = ' ' + s;
+    return [...s].map((ch, i) => {
+      const lit = ch === ' ' ? '' : MAP[+ch];
+      const rects = 'abcdefg'.split('').map(k => {
+        const [x, y, w, h] = SEG[k];
+        return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="1" fill="${lit.includes(k) ? '#1d2416' : 'rgba(29,36,22,.09)'}"/>`;
+      }).join('');
+      return `<div class="lcd-cell"><i>${i === 3 ? '億' : i === 7 ? '万' : ''}</i><svg viewBox="0 0 18 30" aria-hidden="true">${rects}</svg></div>`;
+    }).join('');
+  }
+  const value = () => parseInt(state.calc || '0', 10);
+
+  function showAppraise() {
+    const lot = LOTS[state.i];
+    state.calc = '';
+    state.hints = [];
+    hud(true);
+    app.innerHTML = `
+      <section class="wrap appraise">
+        <div class="wallcol">
+          <div class="hung" style="--ar:${lot.ar.toFixed(3)}">
+            <svg class="wire" viewBox="0 0 200 40" aria-hidden="true"><path d="M10 40 L100 5 L190 40" fill="none" stroke="#8f8a78" stroke-width="1.3"/><circle cx="100" cy="5" r="4" fill="#c8a35a"/></svg>
+            <div class="frame" style="width:100%"><div class="slip"><img src="${lot.img}" alt="鑑定する作品"></div></div>
+            <div class="string" aria-hidden="true"></div>
+            <div class="price-tag" id="tag" aria-live="polite">0円</div>
+          </div>
+          <div class="plaque">
+            <b>LOT ${state.i + 1}</b><br>
+            ${esc(lot.year)}　${esc(lot.medium)}<br>
+            <span id="pl-artist" class="hid">作者 ?</span><br>
+            <span id="pl-prov" class="hid">来歴 ?</span>
+          </div>
+        </div>
+        <section class="ticket paper" aria-label="鑑定票">
+          <div class="ticket-head"><h2>鑑定票</h2><span style="font-size:13px;color:var(--ink-muted)">第${kanjiNum(state.i + 1)}号</span></div>
+          <div class="formal zero" id="formal">値打ちなし</div>
+          <div class="calc">
+            <div class="solar" aria-hidden="true"><span></span></div>
+            <div class="lcd" role="img" id="lcd" aria-label="電卓の表示 0円"><div class="lcd-row" id="lcd-row">${lcdHTML(0)}</div></div>
+            <div class="keys" id="keys">
+              ${['7', '8', '9', 'C', '4', '5', '6', '←', '1', '2', '3', '万', '0', '00', '000', '億'].map(k =>
+                `<button type="button" class="key${k === 'C' ? ' clear' : /[←万億]/.test(k) ? ' fn' : ''}" data-k="${k}" aria-label="${k === '←' ? '一桁消す' : k === 'C' ? '全部消す' : k}">${k}</button>`).join('')}
+            </div>
+          </div>
+          <div class="hints">
+            <button type="button" class="hint" id="h-artist">作者を見る −15%</button>
+            <button type="button" class="hint" id="h-prov">来歴を見る −15%</button>
+          </div>
+          <button type="button" class="go" id="judge">鑑定する</button>
+        </section>
+      </section>`;
+    $('#keys').onclick = e => {
+      const k = e.target.closest('[data-k]')?.dataset.k;
+      if (!k) return;
+      let s = state.calc;
+      if (k === 'C') s = '';
+      else if (k === '←') s = s.slice(0, -1);
+      else if (k === '万' || k === '億') s = s ? s + (k === '万' ? '0000' : '00000000') : s;
+      else s = (s + k).replace(/^0+/, '');
+      if (s.length <= 12) state.calc = s;
+      updateAmount();
+    };
+    $('#h-artist').onclick = () => useHint('artist', '#pl-artist', '作者 ' + lot.artist);
+    $('#h-prov').onclick = () => useHint('prov', '#pl-prov', lot.prov);
+    $('#judge').onclick = () => {
+      const g = value(), sc = score(g, lot.value, state.hints.length);
+      state.results[state.i] = { guess: g, hints: state.hints.length, ...sc };
+      showResult();
+    };
+    window.scrollTo(0, 0);
+  }
+  function useHint(key, sel, text) {
+    if (state.hints.includes(key)) return;
+    state.hints.push(key);
+    const el = $(sel);
+    el.textContent = text;
+    el.classList.remove('hid');
+    const b = $(key === 'artist' ? '#h-artist' : '#h-prov');
+    b.disabled = true;
+    b.textContent = key === 'artist' ? '作者 判明' : '来歴 判明';
+  }
+  function updateAmount() {
+    const v = value();
+    $('#tag').textContent = yen(v);
+    $('#formal').textContent = daiji(v);
+    $('#formal').classList.toggle('zero', v === 0);
+    $('#lcd-row').innerHTML = lcdHTML(v);
+    $('#lcd').setAttribute('aria-label', '電卓の表示 ' + yen(v));
+  }
+
+  /* result */
+  const pos = n => n <= 0 ? 0 : Math.min(100, Math.max(0, (Math.log10(n) - 2) / 10 * 100));
+  function showResult() {
+    const lot = LOTS[state.i], r = state.results[state.i];
+    hud(true);
+    const pg = pos(r.guess), pa = pos(lot.value);
+    const ticks = [[2, '百円'], [4, '一万'], [6, '百万'], [8, '一億'], [10, '百億'], [12, '一兆']]
+      .map(([L, t]) => `<div class="tick" style="left:${(L - 2) * 10}%"><span>${t}</span></div>`).join('');
+    const last = state.i === LOTS.length - 1;
+    app.innerHTML = `
+      <section class="wrap result">
+        <article class="cert paper" aria-label="鑑定書">
+          <div class="cert-head"><h2>鑑定書</h2><span>第${kanjiNum(state.i + 1)}号</span></div>
+          <div class="cert-grid">
+            <div class="cert-left">
+              <div class="frame sm"><div class="slip"><img src="${lot.img}" alt="${esc(lot.title)}"></div></div>
+              <dl class="meta">
+                <dt>作品</dt><dd><b>${esc(lot.title)}</b></dd>
+                <dt>作者</dt><dd>${esc(lot.artist)}</dd>
+                <dt>正体</dt><dd>${esc(lot.kind)}</dd>
+              </dl>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div class="amounts">
+                <div><p class="lbl">あなたの鑑定</p><p class="amt">${yen(r.guess)}</p></div>
+                <div class="act"><p class="lbl">実際の値打ち</p><p class="amt">${lot.approx ? '約' : ''}${yen(lot.value)}</p><p class="sub">${esc(lot.sold)}${lot.real ? '' : '(架空の例)'}</p></div>
+              </div>
+              <div class="scale" aria-hidden="true">
+                <div class="axis"></div>
+                <div class="span" style="left:${Math.min(pg, pa)}%;width:${Math.abs(pg - pa)}%"></div>
+                ${ticks}
+                <div class="mk" style="left:${pg}%"><b>あなた</b></div>
+                <div class="mk act" style="left:${pa}%"><b>実際</b></div>
+              </div>
+              <p class="verdict">${verdict(r.guess, lot.value)}</p>
+              <p class="note">${esc(lot.note)}</p>
+              <div class="cert-foot">
+                <p class="pts">${fmt(r.pts)}<small>/ 1000点</small></p>
+                <div class="stamp land" role="img" aria-label="判定 ${r.grade}">${r.grade}</div>
+              </div>
+            </div>
+          </div>
+        </article>
+        <button type="button" class="go red" id="next" style="width:auto;padding:12px 34px">${last ? '認定証を受け取る' : '次の作品へ'}</button>
+      </section>`;
+    $('#next').onclick = () => { if (last) showFinal(); else { state.i++; showAppraise(); } };
+    window.scrollTo(0, 0);
+  }
+
+  /* final */
+  function rankOf(f) { return f >= .9 ? '伝説の目利き' : f >= .7 ? '一流の鑑定士' : f >= .5 ? '画廊の番頭' : f >= .3 ? '見習い鑑定士' : '節穴コレクター'; }
+  function edge() {
+    const pts = [], j = () => (Math.random() * 5).toFixed(1);
+    for (let i = 0; i <= 100; i += 1) pts.push(`${i}% ${j()}px`);
+    for (let i = 1; i <= 100; i += 1) pts.push(`calc(100% - ${j()}px) ${i}%`);
+    for (let i = 99; i >= 0; i -= 1) pts.push(`${i}% calc(100% - ${j()}px)`);
+    for (let i = 99; i > 0; i -= 1) pts.push(`${j()}px ${i}%`);
+    return `polygon(${pts.join(',')})`;
+  }
+  function showFinal() {
+    hud(false);
+    const t = total(), max = LOTS.length * 1000;
+    const d = new Date();
+    const reiwa = d.getFullYear() - 2018;
+    const date = `令和${kanjiNum(reiwa)}年${kanjiNum(d.getMonth() + 1)}月${kanjiNum(d.getDate())}日`;
+    const items = LOTS.map((l, i) => {
+      const r = state.results[i];
+      return `<p class="item"><span>${kanjiNum(i + 1)}、${esc(l.title)}　${kanjiNum(r.pts)}点</span><span class="mini">${r.grade}</span></p>`;
+    }).join('');
+    app.innerHTML = `
+      <section class="final">
+        <div class="washi-scroll" id="wscroll">
+          <div class="washi-wrap">
+            <article class="washi" id="washi" aria-label="鑑定士認定証">
+              <svg class="tex" aria-hidden="true">
+                <filter id="wg"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="3" seed="4"/><feColorMatrix values="0 0 0 0 .42  0 0 0 0 .36  0 0 0 0 .26  0 0 0 .1 0"/></filter>
+                <filter id="wf"><feTurbulence type="fractalNoise" baseFrequency=".005 .09" numOctaves="2" seed="9"/><feColorMatrix values="0 0 0 0 .6  0 0 0 0 .54  0 0 0 0 .44  0 0 0 .5 -.18"/></filter>
+                <rect width="100%" height="100%" filter="url(#wg)"/><rect width="100%" height="100%" filter="url(#wf)"/>
+              </svg>
+              <div class="washi-v">
+                <h2>鑑定士認定証</h2>
+                <p class="body">右の者 総得点${kanjiNum(t)}点により ここに</p>
+                <p class="rank">${rankOf(t / max)}</p>
+                <p class="tail">と認めます</p>
+                <div class="items"><p style="padding-top:10em">記</p>${items}<p style="text-align:end">以上</p></div>
+                <p class="date">${date}</p>
+                <div class="issuer"><span>名画かガラクタか鑑定会</span><span class="seal" role="img" aria-label="鑑定会の印">鑑定之印</span></div>
+              </div>
+            </article>
+          </div>
+        </div>
+        <div class="actions">
+          <button type="button" class="go red" id="again" style="width:auto;padding:12px 30px">もう一度</button>
+          <button type="button" class="btn-line" id="totitle">タイトルへ</button>
+        </div>
+      </section>`;
+    $('#washi').style.clipPath = edge();
+    const sc = $('#wscroll');
+    sc.scrollLeft = sc.scrollWidth;
+    $('#again').onclick = () => { state.i = 0; state.results = []; showAppraise(); };
+    $('#totitle').onclick = showTitle;
+    window.scrollTo(0, 0);
+  }
+
+  $('#home').onclick = showTitle;
+  showTitle();
+})();
+</script>
+</body>
+</html>
