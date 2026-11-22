@@ -1,13 +1,13 @@
 # 名画かガラクタか
 
-絵を見て値段をつける鑑定ゲームです。出てくる8点はすべて実在する絵で、実際に約17万円から約675億円で落札されています。
+絵を見て値段をつける鑑定ゲームです。出てくる10点はすべて実在する絵で、実際に約17万円から約675億円で落札されています。
 
 ## 遊び方
 
 1. 額に入った絵を見て、電卓で値段を入れます。「42」→「億」で42億円です。
 2. 作者や来歴はヒントで見られます。1つ使うごとに得点が15%減ります。
 3. 実際の落札額との差は「何倍ずれたか」で採点します。ぴったりなら1000点、10倍ずれると600点です。
-4. 8点を鑑定し終えると、和紙の認定証がもらえます。
+4. 10点を鑑定し終えると、和紙の認定証がもらえます。
 
 ## 価格の出典
 
@@ -16,6 +16,8 @@
 | 作品 | 落札額 | 落札 | 出典 |
 |---|---|---|---|
 | ペーター・ラードシ『浜で網を繕う漁師一家』(1872) | 8,000クローネ(約17万円) | ブルーン・ラスムッセン | [Bruun Rasmussen](https://bruun-rasmussen.dk/m/lots/AE97BCC448B6) |
+| ポール・ゴンドレクソン『インドネシアの女性楽師』(1889) | 2,268ユーロ(手数料込み、約36万円) | 2023年 オズナ | [Osenat](https://www.osenat.com/lot/142496/23439578-paul-gondrexon-xix-xx-musicienne-indonesienne-huile-sur) |
+| ローレンツ・フレーリッヒ『赤いスカートの女性の肖像』(1848) | 19万クローネ(約409万円) | 2017年 ブルーン・ラスムッセン(エーレゴー美術館が購入) | [Bruun Rasmussen](https://bruun-rasmussen.dk/m/lots/58CA083F0A80) |
 | L・A・リング『ライ麦畑に沿って』(1887) | 22万クローネ(約473万円) | 2017年 ブルーン・ラスムッセン(ランダース美術館が購入) | [Bruun Rasmussen](https://bruun-rasmussen.dk/m/lots/BA04A60B4BD5) |
 | ヴィルヘルム・マーストラン『オットー・マーストランの二人の娘と乳母』(1857) | 90万クローネ(約1,940万円) | ブルーン・ラスムッセン | [Bruun Rasmussen](https://bruun-rasmussen.dk/m/lots/ECAC62090B2A) |
 | C・W・エッカースベア『扉越しに走る人々』(1845) | 210万クローネ(約4,520万円) | 2017年 ブルーン・ラスムッセン(デンマーク国立美術館が購入) | [Bruun Rasmussen](https://bruun-rasmussen.dk/m/lots/7C004674E8B0) |
@@ -31,6 +33,8 @@
 すべてWikimedia Commonsのパブリックドメイン画像を、表示用に縮小して使っています。
 
 - [Peter Raadsig, En fiskerfamilie ordner net på standen, 1872](https://commons.wikimedia.org/wiki/File:Peter_Raadsig,_En_fiskerfamilie_ordner_net_p%C3%A5_standen,_1872.png)
+- [Musicienne indonésienne, Paul Gondrexon](https://commons.wikimedia.org/wiki/File:Musicienne_indon%C3%A9sienne,_Paul_Gondrexon.png)
+- [Lorenz Frølich "Portræt af en kvinde med rød nederdel". 1848](https://commons.wikimedia.org/wiki/File:Lorenz_Fr%C3%B8lich_%E2%80%9CPortr%C3%A6t_af_en_kvinde_med_r%C3%B8d_nederdel%E2%80%9D._1848.jpg)
 - [L. A. Ring, Langs Rugmarken, 1887](https://commons.wikimedia.org/wiki/File:L._A._Ring,_Langs_Rugmarken._Gangsti_med_en_gr%C3%A6sbevoxet_Jordvold_til_h%C3%B8jre,_Rugmarken_til_venstre._I_baggrunden_en_Stente,_1887,_RKR_2318,_Randers_Kunstmuseum.png)
 - [Wilhelm Marstrand, Portræt af Otto Marstrands to døtre, 1857](https://commons.wikimedia.org/wiki/File:Wilhelm_Marstrand,_Portr%C3%A6t_af_Otto_Marstrands_to_d%C3%B8tre_og_deres_vestindiske_barnepige,_Justina,_i_Frederiksberg_Have,_1857,_KMS8833,_Statens_Museum_for_Kunst.jpg)
 - [C.W. Eckersberg - View through a Door to Running Figures](https://commons.wikimedia.org/wiki/File:C.W._Eckersberg_-_View_through_a_Door_to_Running_Figures_-_KMS8847_-_Statens_Museum_for_Kunst.jpg)
