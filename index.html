@@ -299,12 +299,21 @@ button { font: inherit; color: inherit; }
 <main id="app"></main>
 
 <footer class="credit wrap" id="credit">
-  すべて実在する絵です。価格は実際の落札額を、1ドル=150円・1ユーロ=160円・1クローネ=21.5円で換算しています。<a href="https://github.com/bookworm1000-cyber/meiga-garakuta#価格の出典">出典</a>
+  実在する絵と、無料で公開されている画像だけを使っています。価格は実際の落札額を、1ドル=150円・1ユーロ=160円・1クローネ=21.5円で換算しています。<a href="https://github.com/bookworm1000-cyber/meiga-garakuta#価格の出典">出典</a>
 </footer>
 
 <script>
 (() => {
-  const LOTS = [
+  const ROUND = 10;
+  const POOL = [
+    { img: 'images/free-splatter.jpg', title: '白いテーブルに飛び散った絵具', artist: 'リカルド・ヴィアナ(Unsplash)', year: '2016年', medium: 'デジタル写真', kind: '無料写真',
+      value: 0, sold: '誰でも無料で使える写真(CC0)', prov: '写真共有サイトで無料公開', note: 'ポロックの絵に見えても、ただの写真。' },
+    { img: 'images/free-music-painting.jpg', title: 'Music painting', artist: 'フォンス・ハインスブルーク(オランダ)', year: '2020年', medium: '水彩とガッシュ、紙', kind: '無料画像',
+      value: 0, sold: '画家自身が画像を無料公開(CC0)', prov: '画像は誰でも無料でダウンロードできる', note: '本物の画家の抽象画だが、画像は0円。' },
+    { img: 'images/free-watercolor-flowers.jpg', title: '水彩の花', artist: 'ヴィクトリア・ビルズボロー(Unsplash)', year: '2017年', medium: 'デジタル写真', kind: '無料写真',
+      value: 0, sold: '誰でも無料で使える写真(CC0)', prov: '写真共有サイトで無料公開', note: '額に入れても0円。' },
+    { img: 'images/sunset-oslo.jpg', title: 'オスロの夕焼け', artist: 'クリストファー・セルベック(Unsplash)', year: '2015年', medium: 'デジタル写真', kind: '無料写真',
+      value: 0, sold: '誰でも無料で使える写真(CC0)', prov: '写真共有サイトで無料公開', note: 'これも0円。' },
     { img: 'images/raadsig-fishermen.jpg', title: '浜で網を繕う漁師一家', artist: 'ペーター・ラードシ(デンマーク)', year: '1872年', medium: '油彩、カンヴァス', kind: 'デンマーク絵画',
       value: 172000, sold: 'ブルーン・ラスムッセン、8,000クローネ', prov: '落札前の予想は2,000〜3,000クローネ', note: '予想の約3倍で落札。' },
     { img: 'images/monet-meules.jpg', title: '積みわら', artist: 'クロード・モネ', year: '1890年', medium: '油彩、カンヴァス', kind: '印象派',
@@ -326,6 +335,13 @@ button { font: inherit; color: inherit; }
     { img: 'images/mondrian-1922.jpg', title: '大きな赤い面のコンポジション', artist: 'ピエト・モンドリアン', year: '1922年', medium: '油彩、カンヴァス', kind: '前衛',
       value: 7130000000, sold: '2025年 クリスティーズ・ニューヨーク、4,756万ドル', prov: 'リッジオ夫妻のコレクション', note: '予想の5,000万ドル超には届かず。' }
   ];
+  const shuffle = a => { const b = a.slice(); for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
+  function pickLots() {
+    const zero = shuffle(POOL.filter(l => l.value === 0)), rest = shuffle(POOL.filter(l => l.value > 0));
+    const nz = 2 + Math.floor(Math.random() * 2);
+    return shuffle(zero.slice(0, nz).concat(rest.slice(0, ROUND - nz)));
+  }
+  let LOTS = pickLots();
 
   const KANJI = ['', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
   const DAIJI = ['', '壱', '弐', '参', '四', '五', '六', '七', '八', '九'];
@@ -367,6 +383,8 @@ button { font: inherit; color: inherit; }
     if (Math.abs(Math.log10(r)) < 0.02) return 'ほぼぴったり。';
     const x = r > 1 ? r : 1 / r;
     const s = x < 10 ? x.toFixed(1) : fmt(Math.round(x));
+    if (x < 1.5) return '実際より' + Math.round(Math.abs(r - 1) * 100) + '%' + (r > 1 ? '高い' : '安い') + '。いい線。';
+    if (x < 3) return r > 1 ? '実際の' + s + '倍。少し高め。' : '実際の' + s + '分の1。少し安め。';
     return r > 1 ? '実際の' + s + '倍。高すぎ。' : '実際の' + s + '分の1。安すぎ。';
   }
   const total = () => state.results.reduce((s, r) => s + r.pts, 0);
@@ -388,7 +406,7 @@ button { font: inherit; color: inherit; }
           <div class="poster-v">
             <span class="kicker">特別展</span>
             <h1><span>名画か</span><span>ガラクタか</span></h1>
-            <div class="facts"><span>会期　本日かぎり</span><span>出品　${kanjiNum(LOTS.length)}点</span></div>
+            <div class="facts"><span>会期　本日かぎり</span><span>出品　${kanjiNum(ROUND)}点</span></div>
           </div>
           <button class="start" type="button" id="start">鑑定を始める</button>
         </div>
@@ -398,7 +416,7 @@ button { font: inherit; color: inherit; }
           <div class="hang"><div class="frame sm"><div class="slip"><img src="images/mondrian-1922.jpg" alt=""></div></div><span class="tag">いくら?</span></div>
         </div>
       </section>`;
-    $('#start').onclick = () => { state.i = 0; state.results = []; showAppraise(); };
+    $('#start').onclick = () => { LOTS = pickLots(); state.i = 0; state.results = []; showAppraise(); };
   }
 
   /* appraise */
@@ -434,7 +452,7 @@ button { font: inherit; color: inherit; }
           </div>
           <div class="plaque">
             <b>LOT ${state.i + 1}</b><br>
-            ${esc(lot.year)}　${esc(lot.medium)}<br>
+            ${esc(lot.year)}<br>
             <span id="pl-artist" class="hid">作者 ?</span><br>
             <span id="pl-prov" class="hid">来歴 ?</span>
           </div>
@@ -515,13 +533,14 @@ button { font: inherit; color: inherit; }
               <dl class="meta">
                 <dt>作品</dt><dd><b>${esc(lot.title)}</b></dd>
                 <dt>作者</dt><dd>${esc(lot.artist)}</dd>
+                <dt>技法</dt><dd>${esc(lot.medium)}</dd>
                 <dt>正体</dt><dd>${esc(lot.kind)}</dd>
               </dl>
             </div>
             <div style="display:flex;flex-direction:column;gap:12px">
               <div class="amounts">
                 <div><p class="lbl">あなたの鑑定</p><p class="amt">${yen(r.guess)}</p></div>
-                <div class="act"><p class="lbl">実際の値打ち</p><p class="amt">約${yen(lot.value)}</p><p class="sub">${esc(lot.sold)}</p></div>
+                <div class="act"><p class="lbl">実際の値打ち</p><p class="amt">${lot.value ? '約' : ''}${yen(lot.value)}</p><p class="sub">${esc(lot.sold)}</p></div>
               </div>
               <div class="scale" aria-hidden="true">
                 <div class="axis"></div>
@@ -595,7 +614,7 @@ button { font: inherit; color: inherit; }
     $('#washi').style.clipPath = edge();
     const sc = $('#wscroll');
     sc.scrollLeft = sc.scrollWidth;
-    $('#again').onclick = () => { state.i = 0; state.results = []; showAppraise(); };
+    $('#again').onclick = () => { LOTS = pickLots(); state.i = 0; state.results = []; showAppraise(); };
     $('#totitle').onclick = showTitle;
     window.scrollTo(0, 0);
   }

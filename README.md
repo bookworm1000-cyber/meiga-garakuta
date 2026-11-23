@@ -1,10 +1,10 @@
 # 名画かガラクタか
 
-絵を見て値段をつける鑑定ゲームです。出てくる10点はすべて実在する絵で、実際に約17万円から約675億円で落札されています。
+絵を見て値段をつける鑑定ゲームです。実際に約17万円から約675億円で落札された実在の絵10点と、誰でも無料で使える0円の画像4点、あわせて14点が出てきます。1回のプレイでは、この中からランダムに10問(0円の画像は2〜3問)が出ます。
 
 ## 遊び方
 
-1. 額に入った絵を見て、電卓で値段を入れます。「42」→「億」で42億円です。
+1. 額に入った絵を見て、電卓で値段を入れます。「42」→「億」で42億円です。0円だと思ったら何も入れずに鑑定します。
 2. 作者や来歴はヒントで見られます。1つ使うごとに得点が15%減ります。
 3. 実際の落札額との差は「何倍ずれたか」で採点します。ぴったりなら1000点、10倍ずれると600点です。
 4. 10点を鑑定し終えると、和紙の認定証がもらえます。
@@ -28,9 +28,20 @@
 
 ブルーン・ラスムッセンの金額は落札価格(手数料を除く)です。
 
+## 0円の画像
+
+どれもCC0(作者が権利を放棄し、誰でも無料で使える)で公開されている画像なので、値打ちは0円としています。
+
+| 作品 | 作者 | 出典 |
+|---|---|---|
+| 白いテーブルに飛び散った絵具(写真、2016) | Ricardo Viana(Unsplash) | [Splatter paint on white table (Unsplash)](https://commons.wikimedia.org/wiki/File:Splatter_paint_on_white_table_(Unsplash).jpg) |
+| Music painting(水彩とガッシュ、2020) | Fons Heijnsbroek(画家自身がCC0で公開) | [Music painting, Fons Heijnsbroek](https://commons.wikimedia.org/wiki/File:%27Music_painting%27_contemporary_abstract_art_-_colorful_watercolor_sketch_on_paper_and_gouache_in_red_and_blue_colors,_by_Dutch_artist_Fons_Heijnsbroek;_free_download_abstract_expressionism_art_image_CC0,_high_resolution_TIFF.tif) |
+| 水彩の花(写真、2017) | Victoria Bilsborough(Unsplash) | [Watercolor Flowers (Unsplash)](https://commons.wikimedia.org/wiki/File:Watercolor_Flowers_(Unsplash).jpg) |
+| オスロの夕焼け(写真、2015) | Kristofer Selbekk(Unsplash) | [Oslo sunset (Unsplash)](https://commons.wikimedia.org/wiki/File:Oslo_sunset_(Unsplash).jpg) |
+
 ## 画像の出典
 
-すべてWikimedia Commonsのパブリックドメイン画像を、表示用に縮小して使っています。
+実在の絵10点は、Wikimedia Commonsのパブリックドメイン画像を表示用に縮小して使っています(0円の画像4点の出典は上の表のとおりです)。
 
 - [Peter Raadsig, En fiskerfamilie ordner net på standen, 1872](https://commons.wikimedia.org/wiki/File:Peter_Raadsig,_En_fiskerfamilie_ordner_net_p%C3%A5_standen,_1872.png)
 - [Musicienne indonésienne, Paul Gondrexon](https://commons.wikimedia.org/wiki/File:Musicienne_indon%C3%A9sienne,_Paul_Gondrexon.png)
